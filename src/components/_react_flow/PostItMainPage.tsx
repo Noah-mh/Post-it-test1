@@ -126,7 +126,6 @@ export default () => {
                     </Panel>
                     <Controls />
                     <MiniMap />
-                    <Background variant={"dots" as BackgroundVariant} gap={12} size={1} />
                 </ReactFlow>
 
             </div><Sidebar />

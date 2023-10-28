@@ -34,19 +34,6 @@ const PostItNode: React.FC<NodeProps> = ({ data }) => {
     };
 
     // custom hook for updating data to global state with click outside event 
-    useEffect(() => {
-        function handleClickOutside(event: MouseEvent) {
-          if (noteContainer.current && !noteContainer.current.contains(event.target as Node)) {
-            handleUpdate(data.id);
-          }
-        }
-        
-        document.addEventListener('mousedown', handleClickOutside);
-        
-        return () => {
-          document.removeEventListener('mousedown', handleClickOutside);
-        };
-      }, [data, noteData, nodes]);
 
     return (
         <div ref={noteContainer} style={{ backgroundColor: '#FFDD55', padding: '10px', borderRadius: '5px' }}>
@@ -58,6 +45,7 @@ const PostItNode: React.FC<NodeProps> = ({ data }) => {
                     value={noteData.title}
                     onChange={handleDataChange}
                 />
+                 <button onClick={()=>{handleUpdate(noteData.id)}}>update</button>
             </div>
             <textarea
                 className="text-sm text-gray-600 bg-transparent w-64 h-32"
