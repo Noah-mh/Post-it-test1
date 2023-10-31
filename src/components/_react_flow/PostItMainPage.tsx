@@ -22,12 +22,12 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 
 import { Button } from "@/components/ui/button";
-import Sidebar from "@/components/_react_flow/Sidebar";
 import useUndoRedo from '@/hooks/useUndoRedo'; //import custom hook for undo redo
 import { PostItNodeElement } from "@/Types/postIt"; // import type for postit node
 import PostItNode from "@/components/_react_flow/PostItNode"; // import custom node for postit node
 import { useData } from "@/context/postItContext"; // import useData for share state globally for all components
 import { on } from 'events';
+import Header from './Header';
 
 // create new node type for reactflow
 const nodeTypes = {
@@ -149,6 +149,7 @@ export default () => {
     return (
         <>
             <div className="" ref={reactFlowWrapper} style={{ height: '90vh' }}>
+                <Header onSave={onSave} />
                 <ReactFlow
                     nodeTypes={nodeTypes}
                     nodes={nodes}
@@ -186,7 +187,7 @@ export default () => {
                     <Background variant={"dots" as BackgroundVariant} gap={12} size={1} />
                 </ReactFlow>
 
-            </div><Sidebar />
+            </div>
         </>
     );
 }
