@@ -21,6 +21,7 @@ import Sidebar from "@/components/_react_flow/Sidebar";
 import { PostItNodeElement } from "@/Types/postIt"; // import type for postit node
 import PostItNode from "@/components/_react_flow/PostItNode"; // import custom node for postit node
 import { useData } from "@/context/postItContext"; // import useData for share state globally for all components
+import { v4 as uuidv4 } from 'uuid';
 
 // create new node type for reactflow
 const nodeTypes = {
@@ -42,8 +43,7 @@ export default () => {
         event.preventDefault();
         event.dataTransfer.dropEffect = 'move';
     }, []);
-
-    const getId = (): string => `dndnode_${nodes.length++}`; // creating unique ids for each nodes.
+    const getId = (): string => uuidv4(); // creating unique ids for each nodes.
     const onDrop = useCallback(
         (event: React.DragEvent<HTMLDivElement>) => {
             event.preventDefault();
