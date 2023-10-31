@@ -20,8 +20,8 @@ const PostItNode: React.FC<NodeProps> = ({ data, selected }) => {
     const [noteData, setNoteData] = useState<PostItNoteItem>(data);
     const { nodes, setNodes } = useData();
     const noteContainer = useRef<HTMLDivElement>(null);
-    const contentRef = useRef<HTMLDivElement>(null);
-      // function to handle data changes in input and text area elements
+    // const contentRef = useRef<HTMLDivElement>(null);
+    // function to handle data changes in input and text area elements
     const handleDataChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const target = e.target as HTMLInputElement & HTMLTextAreaElement;
         //toast.message(e.target.value);
@@ -51,11 +51,11 @@ const PostItNode: React.FC<NodeProps> = ({ data, selected }) => {
 
     const canPaste = bufferedNodes.length > 0;
 
-    useEffect(() => {
-        if (noteContainer.current && !noteContainer.current.innerHTML) {
-            noteContainer.current.innerHTML = noteData.label;
-        }
-    }, [noteData.label]);
+    // useEffect(() => {
+    //     if (noteContainer.current && !noteContainer.current.innerHTML) {
+    //         noteContainer.current.innerHTML = noteData.label;
+    //     }
+    // }, [noteData.label]);
 
     const handlePin = () => {
         console.log("pin button is clicked!");
@@ -76,21 +76,21 @@ const PostItNode: React.FC<NodeProps> = ({ data, selected }) => {
                                 </div>
                                 : null
                             }
-                           <div className="flex items-center justify-between space-x-8">
-                <input
-                    className="w-full cursor-text p-2 font-bold bg-transparent"
-                    name="title"
-                    value={noteData.title}
-                    onChange={handleDataChange}
-                />
-                 <button onClick={()=>{handleUpdate(noteData.id)}}>update</button>
-            </div>
-            <textarea
-                className="text-sm text-gray-600 bg-transparent w-64 h-32"
-                name="description"
-                value={noteData.description}
-                onChange={handleDataChange}
-            />
+                            <div className="flex items-center justify-between space-x-8">
+                                <input
+                                    className="w-full cursor-text p-2 font-bold bg-transparent"
+                                    name="title"
+                                    value={noteData.title}
+                                    onChange={handleDataChange}
+                                />
+                                <button onClick={() => { handleUpdate(noteData.id) }}>update</button>
+                            </div>
+                            <textarea
+                                className="text-sm text-gray-600 bg-transparent w-64 h-32"
+                                name="description"
+                                value={noteData.description}
+                                onChange={handleDataChange}
+                            />
                         </div>
                         <Handle type="source" position={Position.Right} style={{ background: '#FEB2B2', borderRadius: '4px' }} />
                     </div>
