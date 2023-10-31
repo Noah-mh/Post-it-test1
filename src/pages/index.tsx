@@ -1,8 +1,4 @@
-import Head from "next/head";
-import Link from "next/link";
-
-import { api } from "@/utils/api";
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import ReactFlow, {
   ReactFlowProvider,
   MiniMap,
@@ -15,14 +11,12 @@ import ReactFlow, {
   Edge,
   BackgroundVariant,
   useReactFlow,
-  Panel,
   ReactFlowInstance,
   Node
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
-import { Button } from "@/components/ui/button";
-import Sidebar from "@/components/_react_flow/Sidebar";
+import Header from "@/components/_react_flow/Header";
 import PostItNode from "@/components/_react_flow/PostItNode";
 
 const flowKey = 'example-flow';
@@ -40,9 +34,9 @@ type PostItNodeElement = {
   id: string;
   type: string;
   position: { x: number; y: number };
-  data: { label: string };
+  data: { label: string, pinned: boolean };
+  style?: any;
 };
-
 
 const SaveRestore = () => {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
@@ -50,6 +44,23 @@ const SaveRestore = () => {
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [rfInstance, setRfInstance] = useState<ReactFlowInstance | null>(null);
   const { setViewport } = useReactFlow();
+
+  useEffect(() => {
+    const updateHeight = () => {
+      const windowHeight = window.innerHeight - 60;
+      if (reactFlowWrapper.current) {
+        reactFlowWrapper.current.style.height = `${windowHeight}px`;
+      }
+    };
+
+    updateHeight();
+
+    window.addEventListener('resize', updateHeight);
+
+    return () => {
+      window.removeEventListener('resize', updateHeight);
+    };
+  }, []);
 
   const onConnect = useCallback((params: Edge | Connection) => setEdges((eds) => addEdge(params, eds)), [setEdges]);
 
@@ -78,7 +89,8 @@ const SaveRestore = () => {
         id: getId(),
         type: 'postItNode', // use your custom node type
         position,
-        data: { label: 'A new idea 💡' }, // default content
+        data: { label: 'A new idea 💡', pinned: false }, // default content
+        style: { border: '1px solid black', borderRadius: 15, fontSize: 12, background: '#FED7D7' },
       };
 
       setNodes((nds) => nds.concat([newNode]));
@@ -87,31 +99,25 @@ const SaveRestore = () => {
   );
 
   const onSave = useCallback(() => {
+    console.log("save button is clicked!");
     if (rfInstance) {
       const flow = rfInstance.toObject();
       localStorage.setItem(flowKey, JSON.stringify(flow));
     }
   }, [rfInstance]);
 
-  const onRestore = useCallback(() => {
-    const restoreFlow = async () => {
-      const flow = JSON.parse(localStorage.getItem(flowKey) as string);
-
-      if (flow) {
-        const { x = 0, y = 0, zoom = 1 } = flow.viewport;
-        setNodes(flow.nodes || []);
-        setEdges(flow.edges || []);
-        setViewport({ x, y, zoom });
-      }
-    };
-
-    restoreFlow();
-  }, [setNodes, setViewport]);
+  const proOptions = {
+    account: 'paid-pro',
+    hideAttribution: true,
+  };
 
   return (
     <>
-      <div className="" ref={reactFlowWrapper} style={{ height: '800px' }}>
+      <div className="h-full" ref={reactFlowWrapper}>
+        <Header onSave={onSave} />
+
         <ReactFlow
+          proOptions={proOptions}
           nodeTypes={nodeTypes}
           nodes={nodes}
           edges={edges}
@@ -122,18 +128,17 @@ const SaveRestore = () => {
           onDrop={onDrop}
           onDragOver={onDragOver}
           fitView
-          style={{ width: '100%', height: '100%' }}
+          style={{ width: '100%', height: '90%' }}
         >
-          <Panel position="top-right">
-            <Button className="border border-black p-3" onClick={onSave}>save</Button>
-            <Button className="border border-black p-3" onClick={onRestore}>restore</Button>
-          </Panel>
+          {/* <Panel className="fixed top-0 left-0 bg-gray w-full" position="top-left"> */}
+          {/* <Header onSave={onSave} onRestore={onRestore} /> */}
+          {/* </Panel> */}
           <Controls />
           <MiniMap />
           <Background variant={"dots" as BackgroundVariant} gap={12} size={1} />
         </ReactFlow>
 
-      </div><Sidebar />
+      </div>
     </>
   );
 };
