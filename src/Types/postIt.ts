@@ -6,7 +6,6 @@ export type PostItNodeElement = {
     id: string;
     title: string;
     description: string;
-    //Holds on in progress - Jerald
     comments?: Comment[];
   };
 };
