@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/context-menu"
 
 import useCopyPaste from "@/hooks/useCopyPaste";
+import useUndoRedo from '@/hooks/useUndoRedo';
 
 const PostItNode: React.FC<NodeProps> = ({ data, selected }) => {
     const [noteData, setNoteData] = useState<PostItNoteItem>(data);
@@ -24,6 +25,8 @@ const PostItNode: React.FC<NodeProps> = ({ data, selected }) => {
     const [isTextareaEditable, setTextareaEditable] = useState<boolean>(false);
     const noteContainer = useRef<HTMLDivElement>(null);
     const initialNoteDataRef = useRef<PostItNoteItem>(data);
+
+    const { past, future, takeSnapshot } = useUndoRedo();
     // const contentRef = useRef<HTMLDivElement>(null);
     // function to handle data changes in input and text area elements
     const handleDataChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -49,6 +52,12 @@ const PostItNode: React.FC<NodeProps> = ({ data, selected }) => {
             setNodes(updatedNodes);
         }
     };
+
+    useEffect(() => {
+        console.log("past in postitnode tsx", past);
+        console.log("future in postitnode tsx", future);
+        takeSnapshot();
+    }, [noteData]);
 
     const hideNode = (nodeId: string) => {
         const hidedNodes = nodes?.map((n) => {
@@ -95,11 +104,12 @@ const PostItNode: React.FC<NodeProps> = ({ data, selected }) => {
                 }
             }
         }
+
         document.addEventListener("click", clickOutsideEvent);
         return () => {
             document.removeEventListener("click", clickOutsideEvent);
         };
-    }, [noteData])
+    }, [noteData, takeSnapshot])
 
     return (
         <>
