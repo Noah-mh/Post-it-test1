@@ -1,9 +1,14 @@
 import React, { useState, useRef, useEffect, memo } from "react";
-import { Handle, NodeProps, Position, NodeResizer } from "reactflow";
+import {
+  Handle,
+  NodeProps,
+  Position,
+  NodeResizer,
+  useReactFlow,
+} from "reactflow";
 import { PostItNoteItem } from "@/Types/postIt";
-import { useData } from "@/context/postItContext";
-import { BiPin } from "react-icons/bi";
-
+import { BiPin, BiTrash } from "react-icons/bi";
+import { PiEyeClosedDuotone } from "react-icons/pi";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -14,18 +19,25 @@ import {
 } from "@/components/ui/context-menu";
 
 import useCopyPaste from "@/hooks/useCopyPaste";
+import useUndoRedo from "@/hooks/useUndoRedo";
 
 const PostItNode: React.FC<NodeProps> = ({ data, selected }) => {
   const [noteData, setNoteData] = useState<PostItNoteItem>(data);
-  const { nodes, setNodes } = useData();
+  const rfInstance = useReactFlow();
+  const nodes = rfInstance.getNodes();
+  const { setNodes } = rfInstance;
+  const [isInputEditable, setInputEditable] = useState<boolean>(false);
+  const [isTextareaEditable, setTextareaEditable] = useState<boolean>(false);
   const noteContainer = useRef<HTMLDivElement>(null);
+  const initialNoteDataRef = useRef<PostItNoteItem>(data);
+
+  const { past, future, takeSnapshot } = useUndoRedo();
   // const contentRef = useRef<HTMLDivElement>(null);
   // function to handle data changes in input and text area elements
   const handleDataChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const target = e.target as HTMLInputElement & HTMLTextAreaElement;
-    //toast.message(e.target.value);
     setNoteData({
       ...noteData,
       [target.name]: target.value,
@@ -33,23 +45,47 @@ const PostItNode: React.FC<NodeProps> = ({ data, selected }) => {
   };
 
   // function to handle data update to global state
-  const handleUpdate = (nodeId: string) => {
-    const updatedNodes = nodes.map((n) => {
+  const handleUpdate = (nodeId: string | null) => {
+    if (nodeId) {
+      const updatedNodes = nodes?.map((n) => {
+        if (n.id === nodeId) {
+          return {
+            ...n,
+            data: {
+              ...n.data,
+              ...{ title: noteData.title, description: noteData.description },
+            },
+          };
+        }
+        return n;
+      });
+      setNodes(updatedNodes);
+    }
+  };
+
+  useEffect(() => {
+    console.log("past in postitnode tsx", past);
+    console.log("future in postitnode tsx", future);
+    takeSnapshot();
+  }, [noteData]);
+
+  const hideNode = (nodeId: string) => {
+    const hidedNodes = nodes?.map((n) => {
       if (n.id === nodeId) {
         return {
           ...n,
-          data: {
-            ...n.data,
-            ...{ title: noteData.title, description: noteData.description },
-          },
+          hidden: true,
         };
       }
       return n;
     });
-    setNodes(updatedNodes);
+    setNodes(hidedNodes);
   };
 
-  // custom hook for updating data to global state with click outside event
+  const deleteNode = (nodeId: string) => {
+    const filteredNodes = nodes?.filter((n) => n.id !== nodeId);
+    setNodes(filteredNodes);
+  };
 
   const { cut, copy, paste, bufferedNodes } = useCopyPaste();
 
@@ -65,6 +101,30 @@ const PostItNode: React.FC<NodeProps> = ({ data, selected }) => {
     console.log("pin button is clicked!");
     noteData.pinned = !noteData.pinned;
   };
+  // custom hook for updating data to global state with click outside event
+  useEffect(() => {
+    function clickOutsideEvent(event: MouseEvent) {
+      if (
+        noteContainer.current &&
+        !noteContainer.current.contains(event.target as HTMLElement)
+      ) {
+        setInputEditable(false);
+        setTextareaEditable(false);
+        if (
+          JSON.stringify(noteData) !==
+          JSON.stringify(initialNoteDataRef.current)
+        ) {
+          handleUpdate(noteData.id);
+          initialNoteDataRef.current = noteData;
+        }
+      }
+    }
+
+    document.addEventListener("click", clickOutsideEvent);
+    return () => {
+      document.removeEventListener("click", clickOutsideEvent);
+    };
+  }, [noteData, takeSnapshot]);
 
   return (
     <>
@@ -98,26 +158,47 @@ const PostItNode: React.FC<NodeProps> = ({ data, selected }) => {
                   <BiPin />
                 </div>
               ) : null}
-              <div className="flex items-center justify-between space-x-8">
+              <div className="flex items-center justify-between space-x-8 pt-2">
                 <input
-                  className="w-full cursor-text bg-transparent p-2 font-bold"
+                  className={`w-full cursor-text bg-transparent p-2 font-bold ${
+                    isInputEditable
+                      ? "focus:outline-auto"
+                      : "focus:outline-none"
+                  } outline-1`}
                   name="title"
+                  readOnly={!isInputEditable}
                   value={noteData.title}
                   onChange={handleDataChange}
-                />
-                <button
-                  onClick={() => {
-                    handleUpdate(noteData.id);
+                  onDoubleClick={() => {
+                    setInputEditable(true);
+                    window?.getSelection()?.removeAllRanges();
                   }}
-                >
-                  update
-                </button>
+                />
+                <PiEyeClosedDuotone
+                  className="h-10 w-10 cursor-pointer transition-all hover:text-gray-600"
+                  onClick={() => {
+                    hideNode(noteData.id);
+                  }}
+                />
+                <BiTrash
+                  className="h-10 w-10 cursor-pointer transition-all hover:text-red-600"
+                  onClick={() => {
+                    deleteNode(noteData.id);
+                  }}
+                />
               </div>
               <textarea
-                className="h-32 w-64 bg-transparent text-sm text-gray-600"
+                className={`h-32 w-full cursor-text bg-transparent p-2 text-sm text-gray-600 ${
+                  isTextareaEditable ? "outline" : "outline-none"
+                } outline-1`}
                 name="description"
+                readOnly={!isTextareaEditable}
                 value={noteData.description}
                 onChange={handleDataChange}
+                onDoubleClick={() => {
+                  setTextareaEditable(true);
+                  window?.getSelection()?.removeAllRanges();
+                }}
               />
             </div>
             <Handle
