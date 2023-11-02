@@ -2,7 +2,7 @@ import React from 'react';
 import { useReactFlow, getRectOfNodes, getTransformForBounds } from 'reactflow';
 import { toPng } from 'html-to-image';
 import jsPDF from 'jspdf';
-import { BiImport } from 'react-icons/bi';
+import { FileText } from 'lucide-react';
 
 const imageWidth = 1920;
 const imageHeight = 1080;
@@ -43,7 +43,7 @@ const DownloadPDFButton = () => {
     }
 
     return (
-        <BiImport onClick={onClick} />
+        <FileText onClick={onClick} size={"20px"} />
     )
 }
 
