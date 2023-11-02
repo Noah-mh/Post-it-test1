@@ -8,34 +8,51 @@ import {
     SheetFooter,
     SheetClose
 } from "@/components/ui/sheet"
-import { BiPin } from "react-icons/bi";
+import { FaRegEye } from "react-icons/fa";
 import ReactFlow, { useReactFlow } from 'reactflow';
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button";
+import { useEffect } from "react";
 
-export function PinnedNotes() {
+export function HidedNotes() {
     const reactFlowInstance = useReactFlow();
     const nodes = reactFlowInstance?.getNodes() || [];
-    //console.log('nodes: ', nodes);
+    // console.log(nodes);
+    
+    const unhideNotes = (nodeId: string) => {
+        console.log(nodeId)
+        reactFlowInstance.setNodes((prevNodes) => 
+          prevNodes.map((node) => {
+            if (node.id === nodeId) {
+              return {
+                ...node,
+                hidden: false,
+              };
+            }
+            return node;
+          })
+        );
+      };
 
     return (
         <Sheet>
-            <SheetTrigger asChild>
-                <BiPin />
+            <SheetTrigger>
+                <FaRegEye />
             </SheetTrigger>
             <SheetContent>
                 <SheetHeader>
-                    <SheetTitle>Pinned Notes</SheetTitle>
+                    <SheetTitle>Hided Notes</SheetTitle>
                     <SheetDescription>
-                        View all your pinned notes here.
+                        View all your hided notes here.
                     </SheetDescription>
                 </SheetHeader>
                 <ScrollArea className="h-5/6 p-3">
                     <div className="grid gap-4 py-4">
                         {
-                            nodes.filter(node => node.data.pinned).map(node => (
-                                <div key={node.id} style={{ border: '1px solid black', borderRadius: 15, fontSize: 12, background: '#FED7D7', padding: 20 }}>
+                            nodes.filter(node => node.hasOwnProperty('hidden') && node.hidden === true).map(node => (
+                                <div key={node.id} style={{ border: '1px solid black', borderRadius: 15, fontSize: 12, background: '#FED7D7', padding: 20 }} className="flex flex-row justify-between">
                                     {node.data.title}
+                                    <FaRegEye onClick={() => {unhideNotes(node.id)}}/>
                                 </div>
                             ))
                         }
