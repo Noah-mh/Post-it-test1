@@ -20,14 +20,14 @@ import ReactFlow, {
     useNodesState
 } from 'reactflow';// import required props from reactflow
 import 'reactflow/dist/style.css';
+import { StickyNote, Undo, Redo } from 'lucide-react';
 
-import { Button } from "@/components/ui/button";
 import useUndoRedo from '@/hooks/useUndoRedo'; //import custom hook for undo redo
 import { PostItNodeElement } from "@/Types/postIt"; // import type for postit node
 import PostItNode from "@/components/_react_flow/PostItNode"; // import custom node for postit node
-import { on } from 'events';
 import Header from './Header';
 import { v4 as uuidv4 } from 'uuid';
+import IconButton from './IconButton/IconButton';
 
 // create new node type for reactflow
 const nodeTypes = {
@@ -105,7 +105,7 @@ export default () => {
                 id: newNodeId,
                 type: 'postItNode', // use your custom node type
                 position,
-                data: {id: newNodeId , title: 'A new idea 💡', description: "Time to shine with your idea" }, // default content
+                data: { id: newNodeId, title: 'A new idea 💡', description: "Time to shine with your idea" }, // default content
             };
 
             setNodes((nds) => nds.concat([newNode]));
@@ -147,7 +147,7 @@ export default () => {
     return (
         <>
             <div className="" ref={reactFlowWrapper} style={{ height: '90vh' }}>
-                <Header onSave={onSave} />
+                <Header />
                 <ReactFlow
                     nodeTypes={nodeTypes}
                     nodes={nodes}
@@ -166,19 +166,14 @@ export default () => {
                     proOptions={proOptions}
                     style={{ width: '100%', height: '100%' }}
                 >
-                    {/* <Panel position="top-right">
-                        <Button className="border border-black p-3" onClick={onSave}>save</Button>
-                        <Button className="border border-black p-3" onClick={onRestore}>restore</Button>
-                    </Panel> */}
-                    <Panel position="bottom-center">
-                        <div className="">
-                            <button disabled={canUndo} className="p-5" onClick={undo}>
-                                <span className="">⤴️</span> undo
-                            </button>
-                            <button disabled={canRedo} className="p-5" onClick={redo}>
-                                redo <span className="">⤵️</span>
-                            </button>
-                        </div>
+                    <Panel position="bottom-center" className='bg-white p-2 flex gap-x-3 justify-center items-center rounded-md shadow'>
+                        <IconButton text={"You can drag these nodes to the pane!"} icon={<StickyNote size={"20px"} />} draggable={true} />
+                        <button disabled={canUndo} onClick={undo}>
+                            <IconButton text={"Undo"} icon={<Undo size={"20px"} />} draggable={false} />
+                        </button>
+                        <button disabled={canRedo} onClick={redo}>
+                            <IconButton text={"Redo"} icon={<Redo size={"20px"} />} draggable={false} />
+                        </button>
                     </Panel>
                     <Controls />
                     <MiniMap />

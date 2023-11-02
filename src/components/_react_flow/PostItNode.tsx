@@ -2,8 +2,7 @@
 import React, { useState, useRef, useEffect, memo } from 'react';
 import { Handle, NodeProps, Position, NodeResizer, useReactFlow } from 'reactflow';
 import { PostItNoteItem } from '@/Types/postIt';
-import { BiPin, BiTrash } from "react-icons/bi";
-import { PiEyeClosedDuotone } from "react-icons/pi";
+import { EyeOff, Pin, Trash } from 'lucide-react';
 import {
     ContextMenu,
     ContextMenuContent,
@@ -111,7 +110,7 @@ const PostItNode: React.FC<NodeProps> = ({ data, selected }) => {
                         <div className="relative" style={{ backgroundColor: data.color, padding: 10 }}>
                             {noteData.pinned ?
                                 <div className='absolute top-1 right-1 bg-white p-1 rounded-sm'>
-                                    <BiPin />
+                                    <Pin size={"20px"} />
                                 </div>
                                 : null
                             }
@@ -124,10 +123,10 @@ const PostItNode: React.FC<NodeProps> = ({ data, selected }) => {
                                     onChange={handleDataChange}
                                     onDoubleClick={() => { setInputEditable(true); window?.getSelection()?.removeAllRanges(); }}
                                 />
-                                <PiEyeClosedDuotone
+                                <EyeOff size={"20px"}
                                     className="h-10 w-10 cursor-pointer transition-all hover:text-gray-600"
                                     onClick={() => { hideNode(noteData.id) }} />
-                                <BiTrash
+                                <Trash size={"20px"}
                                     className="h-10 w-10 cursor-pointer transition-all hover:text-red-600"
                                     onClick={() => { deleteNode(noteData.id) }} />
                             </div>

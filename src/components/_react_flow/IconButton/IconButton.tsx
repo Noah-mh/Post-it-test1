@@ -13,18 +13,19 @@ interface CustomTooltipProps {
     onclick?: () => void;
 }
 
-const CustomTooltip: React.FC<CustomTooltipProps> = ({ text, icon, draggable, onclick }: CustomTooltipProps) => {
+const IconButton: React.FC<CustomTooltipProps> = ({ text, icon, draggable, onclick }: CustomTooltipProps) => {
     const onDragStart = (event: React.DragEvent<HTMLDivElement>, nodeType: string) => {
         event.dataTransfer.setData('application/reactflow', nodeType);
         event.dataTransfer.effectAllowed = 'move';
     };
 
     const iconStyle: React.CSSProperties = {
-        backgroundColor: '#FFEB3B', // Yellow color, similar to post-it notes
-        padding: '10px',
-        borderRadius: '5px',
-        boxShadow: '2px 2px 5px rgba(0, 0, 0, 0.2)', // Adding a slight shadow
-        marginBottom: '10px'
+        // backgroundColor: '#FFEB3B', // Yellow color, similar to post-it notes
+        padding: '5px',
+        // fontSize: '15px',
+        // borderRadius: '5px',
+        // boxShadow: '2px 2px 5px rgba(0, 0, 0, 0.2)', // Adding a slight shadow
+        // marginBottom: '10px'
     };
 
     return (
@@ -58,4 +59,4 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ text, icon, draggable, on
     );
 };
 
-export default CustomTooltip;
+export default IconButton;

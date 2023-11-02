@@ -1,7 +1,7 @@
 import React from 'react';
 import { useReactFlow, getRectOfNodes, getTransformForBounds } from 'reactflow';
 import { toPng } from 'html-to-image';
-import { BiDownload } from "react-icons/bi";
+import { Download } from 'lucide-react';
 
 const imageWidth = 1920;
 const imageHeight = 1080;
@@ -39,7 +39,7 @@ const DownloadImageButton = () => {
     }
 
     return (
-        <BiDownload onClick={onClick} />
+        <Download onClick={onClick} size={"20px"} />
     )
 }
 

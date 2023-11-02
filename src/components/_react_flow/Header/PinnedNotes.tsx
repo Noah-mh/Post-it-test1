@@ -8,7 +8,7 @@ import {
     SheetFooter,
     SheetClose
 } from "@/components/ui/sheet"
-import { BiPin } from "react-icons/bi";
+import { Pin, PinOff } from 'lucide-react';
 import ReactFlow, { useReactFlow } from 'reactflow';
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button";
@@ -16,12 +16,15 @@ import { Button } from "@/components/ui/button";
 export function PinnedNotes() {
     const reactFlowInstance = useReactFlow();
     const nodes = reactFlowInstance?.getNodes() || [];
-    //console.log('nodes: ', nodes);
+
+    const handleUnpin = (noteData: any) => {
+        noteData.pinned = !noteData.pinned;
+    }
 
     return (
         <Sheet>
             <SheetTrigger asChild>
-                <BiPin />
+                <Pin size={"20px"} />
             </SheetTrigger>
             <SheetContent>
                 <SheetHeader>
@@ -34,8 +37,13 @@ export function PinnedNotes() {
                     <div className="grid gap-4 py-4">
                         {
                             nodes.filter(node => node.data.pinned).map(node => (
-                                <div key={node.id} style={{ border: '1px solid black', borderRadius: 15, fontSize: 12, background: '#FED7D7', padding: 20 }}>
+                                <div key={node.id} className="relative" style={{ border: '1px solid black', borderRadius: 15, fontSize: 12, background: '#FED7D7', padding: 20 }}>
                                     {node.data.title}
+                                    <div className='absolute top-1 right-1 p-1 rounded-sm'>
+                                        <button onClick={() => { handleUnpin(node.data) }} >
+                                            <PinOff size={"20px"} />
+                                        </button>
+                                    </div>
                                 </div>
                             ))
                         }
