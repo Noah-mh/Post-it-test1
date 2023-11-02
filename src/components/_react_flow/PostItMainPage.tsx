@@ -105,7 +105,7 @@ export default () => {
                 id: newNodeId,
                 type: 'postItNode', // use your custom node type
                 position,
-                data: {id: newNodeId , title: 'A new idea 💡', description: "Time to shine with your idea" }, // default content
+                data: { id: newNodeId, title: 'A new idea 💡', description: "Time to shine with your idea" }, // default content
             };
 
             setNodes((nds) => nds.concat([newNode]));
