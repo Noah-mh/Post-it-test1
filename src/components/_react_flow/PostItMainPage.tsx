@@ -1,5 +1,5 @@
-import { api } from '@/utils/api'; // import api to use trpc APIs
-import React, { useState, useRef, useCallback, useEffect } from 'react'; // import react hooks
+import { api } from "@/utils/api"; // import api to use trpc APIs
+import React, { useState, useRef, useCallback, useEffect } from "react"; // import react hooks
 import ReactFlow, {
     MiniMap,
     Controls,
@@ -17,24 +17,27 @@ import ReactFlow, {
     SelectionDragHandler,
     OnNodesDelete,
     OnEdgesDelete,
-    useNodesState
-} from 'reactflow';// import required props from reactflow
-import 'reactflow/dist/style.css';
-import { StickyNote, Undo, Redo } from 'lucide-react';
+    useNodesState,
+} from "reactflow"; // import required props from reactflow
+import "reactflow/dist/style.css";
 
-import useUndoRedo from '@/hooks/useUndoRedo'; //import custom hook for undo redo
+import { Button } from "@/components/ui/button";
+import IconButton from "@/components/_react_flow/IconButton/IconButton";
+import useUndoRedo from "@/hooks/useUndoRedo"; //import custom hook for undo redo
 import { PostItNodeElement } from "@/Types/postIt"; // import type for postit node
 import PostItNode from "@/components/_react_flow/PostItNode"; // import custom node for postit node
-import Header from './Header';
-import { v4 as uuidv4 } from 'uuid';
-import IconButton from './IconButton/IconButton';
+import { on } from "events";
+import Header from "./Header";
+import Comment from "./Comment";
+import { v4 as uuidv4 } from "uuid";
+import { StickyNote, Undo, Redo, MessageCircle } from "lucide-react";
 
 // create new node type for reactflow
 const nodeTypes = {
     postItNode: PostItNode,
 };
 
-const proOptions: ProOptions = { account: 'paid-pro', hideAttribution: true };
+const proOptions: ProOptions = { account: "paid-pro", hideAttribution: true };
 
 export default () => {
     const reactFlowWrapper = useRef<HTMLDivElement>(null);
@@ -43,23 +46,39 @@ export default () => {
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
     const [rfInstance, setRfInstance] = useState<ReactFlowInstance | null>(null);
     const { setViewport } = useReactFlow();
+    const [openCreateComment, setOpenCreateComment] = useState(false);
+    const [selectedPostIt, setSelectedPostIt] = useState<any>(null);
 
-    const { undo, redo, takeSnapshot, canUndo, canRedo, past, future } = useUndoRedo();
+    const { undo, redo, takeSnapshot, canUndo, canRedo, past, future } =
+        useUndoRedo();
 
+    //Obtains node ID of selected node/postit
+    const onSelectionChangeFunc = (elements: any) => {
+        if (elements.nodes.length === 1) {
+            setSelectedPostIt(elements.nodes[0].id);
+        } else {
+            setSelectedPostIt(null);
+        }
+    };
     useEffect(() => {
         console.log("past", past);
         console.log("future", future);
     }, [past, future]);
 
     const postItUpdate = api.postIt.postItUpdate.useMutation(); // api usage for update
-    const { data: postIt, isLoading } = api.postIt.postItSelect.useQuery({ id: id }); // api call to fetch data with trpc call from prisma orm
-    const onConnect = useCallback((params: Edge | Connection) => {
-        takeSnapshot();
-        setEdges((eds) => addEdge(params, eds));
-    }, [setEdges, takeSnapshot]);
+    const { data: postIt, isLoading } = api.postIt.postItSelect.useQuery({
+        id: id,
+    }); // api call to fetch data with trpc call from prisma orm
+    const onConnect = useCallback(
+        (params: Edge | Connection) => {
+            takeSnapshot();
+            setEdges((eds) => addEdge(params, eds));
+        },
+        [setEdges, takeSnapshot],
+    );
     const onDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
         event.preventDefault();
-        event.dataTransfer.dropEffect = 'move';
+        event.dataTransfer.dropEffect = "move";
     }, []);
 
     const onNodeDragStart: NodeDragHandler = useCallback(() => {
@@ -89,10 +108,10 @@ export default () => {
             event.preventDefault();
 
             const reactFlowBounds = reactFlowWrapper.current?.getBoundingClientRect();
-            const type = event.dataTransfer.getData('application/reactflow');
+            const type = event.dataTransfer.getData("application/reactflow");
 
             // check if the dropped element is valid
-            if (typeof type === 'undefined' || !type || !reactFlowBounds) {
+            if (typeof type === "undefined" || !type || !reactFlowBounds) {
                 return;
             }
 
@@ -103,14 +122,18 @@ export default () => {
             const newNodeId = getId();
             const newNode: PostItNodeElement = {
                 id: newNodeId,
-                type: 'postItNode', // use your custom node type
+                type: "postItNode", // use your custom node type
                 position,
-                data: { id: newNodeId, title: 'A new idea 💡', description: "Time to shine with your idea" }, // default content
+                data: {
+                    id: newNodeId,
+                    title: "A new idea 💡",
+                    description: "Time to shine with your idea",
+                }, // default content
             };
 
             setNodes((nds) => nds.concat([newNode]));
         },
-        [rfInstance, takeSnapshot]
+        [rfInstance, takeSnapshot],
     );
 
     // callback function to save the data of the whole page in json format
@@ -138,16 +161,17 @@ export default () => {
         };
 
         restoreFlow();
-    }, [postIt])
+    }, [postIt]);
 
     // UI element to display when data is loading from database
     if (isLoading) {
-        return <div>Loading...</div> // will implement better UI after discussion for libs is over
+        return <div>Loading...</div>; // will implement better UI after discussion for libs is over
     }
     return (
         <>
-            <div className="" ref={reactFlowWrapper} style={{ height: '90vh' }}>
-                <Header />
+            <div className="" ref={reactFlowWrapper} style={{ height: "90vh" }}>
+                {openCreateComment ? <Comment /> : null}
+                <Header onSave={onSave} />
                 <ReactFlow
                     nodeTypes={nodeTypes}
                     nodes={nodes}
@@ -162,25 +186,74 @@ export default () => {
                     onSelectionDragStart={onSelectionDragStart}
                     onNodesDelete={onNodesDelete}
                     onEdgesDelete={onEdgesDelete}
+                    onSelectionChange={onSelectionChangeFunc}
                     fitView
                     proOptions={proOptions}
-                    style={{ width: '100%', height: '100%' }}
+                    style={{ width: "100%", height: "100%" }}
                 >
-                    <Panel position="bottom-center" className='bg-white p-2 flex gap-x-3 justify-center items-center rounded-md shadow'>
-                        <IconButton text={"You can drag these nodes to the pane!"} icon={<StickyNote size={"20px"} />} draggable={true} />
-                        <button disabled={canUndo} onClick={undo}>
-                            <IconButton text={"Undo"} icon={<Undo size={"20px"} />} draggable={false} />
-                        </button>
-                        <button disabled={canRedo} onClick={redo}>
-                            <IconButton text={"Redo"} icon={<Redo size={"20px"} />} draggable={false} />
-                        </button>
+                    {/* <Panel position="top-right">
+            <Button className="border border-black p-3" onClick={onSave}>
+              save
+            </Button>
+            <Button className="border border-black p-3" onClick={onRestore}>restore</Button>
+          </Panel> */}
+                    <Panel position="bottom-center">
+                        <div className="flex gap-x-3 p-2 rounded-lg bg-gray-200">
+                            <IconButton text={"You can drag these nodes to the pane!"} icon={<StickyNote size={"20px"} />} draggable={true} />
+                            <button disabled={canUndo} onClick={undo}>
+                                <IconButton text={"Undo"} icon={<Undo size={"20px"} />} draggable={false} />
+                            </button>
+                            <button disabled={canRedo} onClick={redo}>
+                                <IconButton text={"Redo"} icon={<Redo size={"20px"} />} draggable={false} />
+                            </button>
+                            <button
+                                className="disabled:opacity-50"
+                                onClick={() => {
+                                    setOpenCreateComment(true);
+                                }}
+                                disabled={!selectedPostIt}
+                                title="Please select a Post It!"
+                            >
+                                <IconButton text={"Comment"} icon={<MessageCircle size={"20px"} />} draggable={false} />
+                            </button>
+                        </div>
                     </Panel>
                     <Controls />
                     <MiniMap />
                     <Background variant={"dots" as BackgroundVariant} gap={12} size={1} />
                 </ReactFlow>
-
             </div>
         </>
     );
-}
+};
+
+[
+    {
+        data: {
+            description: "Time to shine with your idea jufusdhfuasdhf",
+            id: "dndnode_0",
+            title: "A new idea 💡",
+        },
+        dragging: false,
+        height: 222,
+        id: "dndnode_0",
+        position: { x: -576.1919638709952, y: 132.5038328938325 },
+        positionAbsolute: { x: -576.1919638709952, y: 132.5038328938325 },
+        selected: true,
+        type: "postItNode",
+        width: 412,
+    },
+    {
+        data: {
+            description: "Time to shine with your idea",
+            id: "dndnode_1",
+            title: "A new idea 💡",
+        },
+        height: 222,
+        id: "dndnode_1",
+        position: { x: -347.5221217562209, y: 481.0099458661797 },
+        positionAbsolute: { x: -347.5221217562209, y: 481.0099458661797 },
+        type: "postItNode",
+        width: 412,
+    },
+];

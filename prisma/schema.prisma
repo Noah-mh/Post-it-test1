@@ -17,7 +17,6 @@ model PostIt {
     // pinned    Boolean  @default(false)
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
-
     @@index([id])
 }
 
@@ -27,6 +26,6 @@ model User {
     email     String   @unique
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
-
+    
     @@index([id])
 }
