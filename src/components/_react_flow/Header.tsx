@@ -12,9 +12,9 @@ const Header: React.FC<HeaderProps> = ({ onSave }: HeaderProps) => {
                 <div className="flex lg:flex-1">
                     <Sidebar onSave={onSave} />
                 </div>
-                <div className="hidden lg:flex lg:gap-x-12">
+                <div className="font-semibold lg:flex lg:gap-x-12">
                     <div className="relative">
-                        Project Name: “Question will be inserted here”
+                        Question Number: “Question will be inserted here”
                     </div>
                 </div>
                 <div className="hidden lg:flex lg:flex-1 lg:justify-end">

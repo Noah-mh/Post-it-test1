@@ -8,36 +8,35 @@ import {
     SheetFooter,
     SheetClose
 } from "@/components/ui/sheet"
-import { FaRegEye } from "react-icons/fa";
+import { Eye } from "lucide-react";
 import ReactFlow, { useReactFlow } from 'reactflow';
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button";
-import { useEffect } from "react";
 
 export function HidedNotes() {
     const reactFlowInstance = useReactFlow();
     const nodes = reactFlowInstance?.getNodes() || [];
     // console.log(nodes);
-    
+
     const unhideNotes = (nodeId: string) => {
         console.log(nodeId)
-        reactFlowInstance.setNodes((prevNodes) => 
-          prevNodes.map((node) => {
-            if (node.id === nodeId) {
-              return {
-                ...node,
-                hidden: false,
-              };
-            }
-            return node;
-          })
+        reactFlowInstance.setNodes((prevNodes) =>
+            prevNodes.map((node) => {
+                if (node.id === nodeId) {
+                    return {
+                        ...node,
+                        hidden: false,
+                    };
+                }
+                return node;
+            })
         );
-      };
+    };
 
     return (
         <Sheet>
-            <SheetTrigger>
-                <FaRegEye />
+            <SheetTrigger asChild>
+                <Eye size={"20px"} />
             </SheetTrigger>
             <SheetContent>
                 <SheetHeader>
@@ -52,7 +51,7 @@ export function HidedNotes() {
                             nodes.filter(node => node.hasOwnProperty('hidden') && node.hidden === true).map(node => (
                                 <div key={node.id} style={{ border: '1px solid black', borderRadius: 15, fontSize: 12, background: '#FED7D7', padding: 20 }} className="flex flex-row justify-between">
                                     {node.data.title}
-                                    <FaRegEye onClick={() => {unhideNotes(node.id)}}/>
+                                    <Eye size={"20px"} onClick={() => { unhideNotes(node.id) }} />
                                 </div>
                             ))
                         }

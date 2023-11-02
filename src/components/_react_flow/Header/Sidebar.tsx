@@ -1,10 +1,10 @@
 import React from 'react';
-import { BiNote, BiSave } from "react-icons/bi";
+import { Save } from 'lucide-react';
 
 import DownloadImageButton from '@/components/_react_flow/Header/DownloadImageButton';
 import DownloadPDFButton from './DownloadPDFButton';
+import IconButton from '../IconButton/IconButton';
 import { PinnedNotes } from './PinnedNotes';
-import SidebarIcon from '@/components/_react_flow/Header/SidebarIcon';
 import { HidedNotes } from './HidedNotes';
 interface SidebarProps {
     onSave?: () => void;
@@ -13,12 +13,10 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ onSave }: SidebarProps) => {
     return (
         <aside className='flex gap-x-3'>
-            <SidebarIcon text={"You can drag these nodes to the pane!"} icon={<BiNote />} draggable={true} />
-            <SidebarIcon text={"Save"} icon={<BiSave />} draggable={false} onclick={onSave} />
-            <SidebarIcon text={"Pinned Notes"} icon={<PinnedNotes />} draggable={false} />
-            <SidebarIcon text={"Hided Notes"} icon={<HidedNotes />} draggable={false}/>
-            <SidebarIcon text={"Download Image"} icon={<DownloadImageButton />} draggable={false} />
-            <SidebarIcon text={"Download PDF"} icon={<DownloadPDFButton />} draggable={false} />
+            <IconButton text={"Save"} icon={<Save size={"20px"} />} draggable={false} onclick={onSave} />
+            <IconButton text={"Pinned Notes"} icon={<PinnedNotes />} draggable={false} />
+            <IconButton text={"Hided Notes"} icon={<HidedNotes />} draggable={false} />
+            <IconButton text={"Download Image"} icon={<DownloadImageButton />} draggable={false} />
         </aside >
     );
 };
