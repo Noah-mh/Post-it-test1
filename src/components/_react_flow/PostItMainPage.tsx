@@ -267,11 +267,7 @@ export default () => {
                   selectedNodeId={selectedNodeId}
                   createCommentFunc={createComment}
                 >
-                  <IconButton
-                    text={"Comment"}
-                    icon={<MessageCircle size={"20px"} />}
-                    draggable={false}
-                  />
+
                 </Comment>
               </button>
             </div>
