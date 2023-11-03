@@ -32,6 +32,7 @@ import Header from "./Header";
 import Comment from "./Comment";
 import { v4 as uuidv4 } from "uuid";
 import { StickyNote, Undo, Redo, MessageCircle } from "lucide-react";
+import { useUser } from "@clerk/nextjs";
 
 // create new node type for reactflow
 const nodeTypes = {
@@ -41,6 +42,7 @@ const nodeTypes = {
 const proOptions: ProOptions = { account: "paid-pro", hideAttribution: true };
 
 export default () => {
+  const { user } = useUser();
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const id: string = "clo6tzkzs0000us4wi39z9qld"; // for demo purposes, now we use default id. in the production environment, this id will be received when from BE form DB.
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
@@ -48,7 +50,8 @@ export default () => {
   const [rfInstance, setRfInstance] = useState<ReactFlowInstance | null>(null);
   const { setViewport } = useReactFlow();
   const [openCreateComment, setOpenCreateComment] = useState(false);
-  const [selectedPostIt, setSelectedPostIt] = useState<any>(null);
+  const [selectedNodeId, setSelectedNodeId] = useState<any>(null);
+  const [selectedNodeObj, setSelectedNodeObj] = useState();
 
   const { undo, redo, takeSnapshot, canUndo, canRedo, past, future } =
     useUndoRedo();
@@ -56,11 +59,38 @@ export default () => {
   //Obtains node ID of selected node/postit
   const onSelectionChangeFunc = (elements: any) => {
     if (elements.nodes.length === 1) {
-      setSelectedPostIt(elements.nodes[0].id);
+      setSelectedNodeObj(elements.nodes[0]);
+      setSelectedNodeId(elements.nodes[0].id);
     } else {
-      setSelectedPostIt(null);
+      setSelectedNodeId(null);
     }
   };
+
+  const createComment = (selectedNodeId: string, comment: string) => {
+    return new Promise(async (resolve, reject) => {
+      if (rfInstance == undefined) return;
+      let flow = rfInstance.toObject();
+      flow.nodes.forEach((node) => {
+        if (node.id == selectedNodeId) {
+          console.log(node.id);
+          node.data.comments == undefined
+            ? (node.data.comments = [
+              { userId: user?.id, commentId: uuidv4(), comment: comment },
+            ])
+            : node.data.comments.push({
+              userId: user?.id,
+              commentId: uuidv4(),
+              comment: comment,
+            });
+        }
+      });
+
+      await postItUpdate.mutateAsync({ id: id, state: flow }).then((res) => {
+        resolve(res);
+      });
+    });
+  };
+
   useEffect(() => {
     console.log("past", past);
     console.log("future", future);
@@ -204,23 +234,45 @@ export default () => {
             <Button className="border border-black p-3" onClick={onRestore}>restore</Button>
           </Panel> */}
           <Panel position="bottom-center">
-            <div className="flex gap-x-3 p-2 rounded-lg bg-gray-200">
-              <IconButton text={"You can drag these nodes to the pane!"} icon={<StickyNote size={"20px"} />} draggable={true} />
+            <div className="flex gap-x-3 rounded-lg bg-gray-200 p-2">
+              <IconButton
+                text={"You can drag these nodes to the pane!"}
+                icon={<StickyNote size={"20px"} />}
+                draggable={true}
+              />
               <button disabled={canUndo} onClick={undo}>
-                <IconButton text={"Undo"} icon={<Undo size={"20px"} />} draggable={false} />
+                <IconButton
+                  text={"Undo"}
+                  icon={<Undo size={"20px"} />}
+                  draggable={false}
+                />
               </button>
               <button disabled={canRedo} onClick={redo}>
-                <IconButton text={"Redo"} icon={<Redo size={"20px"} />} draggable={false} />
+                <IconButton
+                  text={"Redo"}
+                  icon={<Redo size={"20px"} />}
+                  draggable={false}
+                />
               </button>
               <button
-                className="disabled:opacity-50"
+                className="p-5 disabled:opacity-50"
                 onClick={() => {
                   setOpenCreateComment(true);
                 }}
-                disabled={!selectedPostIt}
+                disabled={!selectedNodeId}
                 title="Please select a Post It!"
               >
-                <IconButton text={"Comment"} icon={<MessageCircle size={"20px"} />} draggable={false} />
+                <Comment
+                  selectedNodeObj={selectedNodeObj}
+                  selectedNodeId={selectedNodeId}
+                  createCommentFunc={createComment}
+                >
+                  <IconButton
+                    text={"Comment"}
+                    icon={<MessageCircle size={"20px"} />}
+                    draggable={false}
+                  />
+                </Comment>
               </button>
             </div>
           </Panel>
@@ -232,34 +284,3 @@ export default () => {
     </>
   );
 };
-
-[
-  {
-    data: {
-      description: "Time to shine with your idea jufusdhfuasdhf",
-      id: "dndnode_0",
-      title: "A new idea 💡",
-    },
-    dragging: false,
-    height: 222,
-    id: "dndnode_0",
-    position: { x: -576.1919638709952, y: 132.5038328938325 },
-    positionAbsolute: { x: -576.1919638709952, y: 132.5038328938325 },
-    selected: true,
-    type: "postItNode",
-    width: 412,
-  },
-  {
-    data: {
-      description: "Time to shine with your idea",
-      id: "dndnode_1",
-      title: "A new idea 💡",
-    },
-    height: 222,
-    id: "dndnode_1",
-    position: { x: -347.5221217562209, y: 481.0099458661797 },
-    positionAbsolute: { x: -347.5221217562209, y: 481.0099458661797 },
-    type: "postItNode",
-    width: 412,
-  },
-];
