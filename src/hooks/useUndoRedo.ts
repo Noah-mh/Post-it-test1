@@ -66,7 +66,10 @@ export const useUndoRedo: UseUndoRedo = ({
       node1.type === node2.type &&
       node1.position.x === node2.position.x &&
       node1.position.y === node2.position.y &&
-      _.isEqual(node1.data, node2.data)
+      _.isEqual(
+        _.omit(node1.data, ["selected"]),
+        _.omit(node2.data, ["selected"]),
+      )
     );
   };
 
@@ -74,7 +77,10 @@ export const useUndoRedo: UseUndoRedo = ({
     return (
       edge1.id === edge2.id &&
       edge1.type === edge2.type &&
-      _.isEqual(edge1.data, edge2.data)
+      _.isEqual(
+        _.omit(edge1.data, ["selected"]),
+        _.omit(edge2.data, ["selected"]),
+      )
       // compare any other relevant properties specific to edges
     );
   };
@@ -125,8 +131,7 @@ export const useUndoRedo: UseUndoRedo = ({
       ...past.slice(past.length - maxHistorySize + 1),
       { nodes: currentNodes, edges: currentEdges },
     ]);
-    console.log("current nodes", currentNodes);
-    console.log("current edges", currentEdges);
+
     console.log("took snapshot");
 
     // Clear the future because we can't redo after taking a new snapshot

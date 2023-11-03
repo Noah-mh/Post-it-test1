@@ -13,7 +13,8 @@ import {
 import { useUser } from "@clerk/nextjs";
 import { AiOutlineSend } from "react-icons/ai";
 import { ScrollArea } from "@/components/ui/scroll-area";
-
+import IconButton from "@/components/_react_flow/IconButton/IconButton";
+import { MessageCircle } from "lucide-react";
 export default function Comment({
   selectedNodeObj,
   selectedNodeId,
@@ -29,7 +30,13 @@ export default function Comment({
 
   return (
     <Sheet>
-      <SheetTrigger>Comment</SheetTrigger>
+      <SheetTrigger>
+        <IconButton
+          text={"Comment"}
+          icon={<MessageCircle size={"20px"} />}
+          draggable={false}
+        />
+      </SheetTrigger>
       <SheetContent>
         <SheetHeader>
           <SheetTitle>Comments</SheetTitle>
@@ -38,14 +45,14 @@ export default function Comment({
           <div className="grid gap-4 py-4">
             {selectedNodeObj.data.comments != undefined
               ? selectedNodeObj.data.comments.map((commentObj: any) => (
-                  <div
-                    key={commentObj.commentId}
-                    className="flex items-center gap-3"
-                  >
-                    <img className="h-8 w-8 rounded-full bg-slate-500" />
-                    <div>{commentObj.comment}</div>
-                  </div>
-                ))
+                <div
+                  key={commentObj.commentId}
+                  className="flex items-center gap-3"
+                >
+                  <img className="h-8 w-8 rounded-full bg-slate-500" />
+                  <div>{commentObj.comment}</div>
+                </div>
+              ))
               : null}
           </div>
         </ScrollArea>

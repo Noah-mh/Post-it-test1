@@ -18,6 +18,7 @@ import ReactFlow, {
   OnNodesDelete,
   OnEdgesDelete,
   useNodesState,
+  SelectionMode,
 } from "reactflow"; // import required props from reactflow
 import "reactflow/dist/style.css";
 
@@ -74,13 +75,13 @@ export default () => {
           console.log(node.id);
           node.data.comments == undefined
             ? (node.data.comments = [
-                { userId: user?.id, commentId: uuidv4(), comment: comment },
-              ])
+              { userId: user?.id, commentId: uuidv4(), comment: comment },
+            ])
             : node.data.comments.push({
-                userId: user?.id,
-                commentId: uuidv4(),
-                comment: comment,
-              });
+              userId: user?.id,
+              commentId: uuidv4(),
+              comment: comment,
+            });
         }
       });
 
@@ -192,6 +193,7 @@ export default () => {
 
     restoreFlow();
   }, [postIt]);
+  const panOnDrag = [1, 2];
 
   // UI element to display when data is loading from database
   if (isLoading) {
@@ -219,6 +221,10 @@ export default () => {
           onSelectionChange={onSelectionChangeFunc}
           fitView
           proOptions={proOptions}
+          panOnScroll
+          selectionOnDrag
+          panOnDrag={panOnDrag}
+          selectionMode={SelectionMode.Partial}
           style={{ width: "100%", height: "100%" }}
         >
           {/* <Panel position="top-right">
@@ -261,11 +267,7 @@ export default () => {
                   selectedNodeId={selectedNodeId}
                   createCommentFunc={createComment}
                 >
-                  <IconButton
-                    text={"Comment"}
-                    icon={<MessageCircle size={"20px"} />}
-                    draggable={false}
-                  />
+
                 </Comment>
               </button>
             </div>
