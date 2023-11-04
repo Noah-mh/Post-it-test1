@@ -30,8 +30,8 @@ const DownloadImageButton = () => {
             width: imageWidth,
             height: imageHeight,
             style: {
-                width: String(imageWidth),
-                height: String(imageHeight),
+                width: String(imageHeight),
+                height: String(imageWidth),
                 transform: `translate(${transform[0]}px, ${transform[1]}px) scale(${transform[2]})`,
             },
         }).then(downloadImage);

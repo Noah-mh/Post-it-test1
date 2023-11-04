@@ -11,7 +11,8 @@ function downloadPDF(dataUrl: string) {
 
     console.log("dataUrl: ", dataUrl);
 
-    const pdf = new jsPDF();
+    // const pdf = new jsPDF();
+    const pdf = new jsPDF('landscape', 'px', [imageWidth, imageHeight]);
     pdf.addImage(dataUrl, 'PNG', 0, 0, imageWidth, imageHeight);
     pdf.save('reactflow.pdf');
 }
@@ -26,18 +27,18 @@ const DownloadPDFButton = () => {
         const nodesBounds = getRectOfNodes(getNodes());
         const transform = getTransformForBounds(nodesBounds, imageWidth, imageHeight, 0.5, 2);
 
-        const aspectRatio = nodesBounds.width / nodesBounds.height;
-        const pdfImageWidth = aspectRatio >= 1 ? imageWidth : imageHeight * aspectRatio;
-        const pdfImageHeight = aspectRatio >= 1 ? imageWidth / aspectRatio : imageHeight;
+        // const aspectRatio = nodesBounds.width / nodesBounds.height;
+        // const pdfImageWidth = aspectRatio >= 1 ? imageWidth : imageHeight * aspectRatio;
+        // const pdfImageHeight = aspectRatio >= 1 ? imageWidth / aspectRatio : imageHeight;
 
         toPng(document.querySelector('.react-flow__viewport') as HTMLElement, {
             backgroundColor: '#1a365d',
-            width: pdfImageWidth,
-            height: pdfImageHeight,
+            width: imageWidth,
+            height: imageHeight,
             style: {
-                width: String(pdfImageWidth),
-                height: String(pdfImageHeight),
-                transform: `translate(${transform[0]}px, ${transform[1]}px) scale(${transform[1]})`,
+                width: String(imageHeight),
+                height: String(imageWidth),
+                transform: `translate(${transform[0]}px, ${transform[1]}px) scale(${transform[2]})`,
             },
         }).then(downloadPDF);
     }

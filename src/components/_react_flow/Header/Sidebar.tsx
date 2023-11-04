@@ -17,6 +17,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSave }: SidebarProps) => {
             <IconButton text={"Pinned Notes"} icon={<PinnedNotes />} draggable={false} />
             <IconButton text={"Hided Notes"} icon={<HidedNotes />} draggable={false} />
             <IconButton text={"Download Image"} icon={<DownloadImageButton />} draggable={false} />
+            <IconButton text={"Download PDF"} icon={<DownloadPDFButton />} draggable={false} />
         </aside >
     );
 };
